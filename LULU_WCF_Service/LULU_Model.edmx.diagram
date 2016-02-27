@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="c7e245b3207244dcae311cdc3d1f0091" Name="Diagram1" >
+        <EntityTypeShape EntityType="LULU_Model.Staff_User" Width="1.5" PointX="6" PointY="2.75" />
+        <EntityTypeShape EntityType="LULU_Model.Lecturer" Width="1.5" PointX="7.75" PointY="2.75" />
+        <InheritanceConnector EntityType="LULU_Model.Lecturer" />
+        <EntityTypeShape EntityType="LULU_Model.Student" Width="1.5" PointX="4.25" PointY="0.5" />
+        <EntityTypeShape EntityType="LULU_Model.Class" Width="1.5" PointX="2.375" PointY="3" />
+        <EntityTypeShape EntityType="LULU_Model.AtttendedClass" Width="1.5" PointX="4.25" PointY="2.625" />
+        <EntityTypeShape EntityType="LULU_Model.Login" Width="1.5" PointX="6" PointY="6.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="LULU_Model.Course" Width="1.5" PointX="2.375" PointY="0.5" />
+        <EntityTypeShape EntityType="LULU_Model.ClassRoom" Width="1.5" PointX="0.5" PointY="2.625" />
+        <EntityTypeShape EntityType="LULU_Model.Campus" Width="1.5" PointX="0.5" PointY="0.5" />
+        <EntityTypeShape EntityType="LULU_Model.Staff_Login" Width="1.5" PointX="6" PointY="4.875" />
+        <EntityTypeShape EntityType="LULU_Model.GPS_Login" Width="1.5" PointX="4.25" PointY="5.125" />
+        <InheritanceConnector EntityType="LULU_Model.Staff_Login" ManuallyRouted="false" >
+        </InheritanceConnector>
+        <InheritanceConnector EntityType="LULU_Model.GPS_Login" />
+        <AssociationConnector Association="LULU_Model.StudentCourse" />
+        <AssociationConnector Association="LULU_Model.CourseClass" />
+        <AssociationConnector Association="LULU_Model.ClassAtttendedClass" />
+        <AssociationConnector Association="LULU_Model.StudentAtttendedClass" />
+        <AssociationConnector Association="LULU_Model.ClassRoomClass" />
+        <AssociationConnector Association="LULU_Model.CampusClassRoom" />
+        <AssociationConnector Association="LULU_Model.AtttendedClassGPS_Login" />
+        <AssociationConnector Association="LULU_Model.AtttendedClassStaff_Login" />
+        <AssociationConnector Association="LULU_Model.Staff_LoginStaff_User" />
+        <EntityTypeShape EntityType="LULU_Model.User" Width="1.5" PointX="6" PointY="0.5" />
+        <InheritanceConnector EntityType="LULU_Model.Staff_User" />
+        <InheritanceConnector EntityType="LULU_Model.Student" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
