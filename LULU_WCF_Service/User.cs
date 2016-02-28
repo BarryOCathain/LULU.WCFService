@@ -12,7 +12,7 @@ namespace LULU_WCF_Service
     using System;
     using System.Collections.Generic;
     
-    public partial class User
+    public abstract partial class User
     {
         public int UserID { get; set; }
         public string FirstName { get; set; }

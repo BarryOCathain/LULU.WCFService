@@ -551,7 +551,7 @@
           <End Type="LULU_Model.Staff_Login" Role="Staff_Login" Multiplicity="1" />
           <End Type="LULU_Model.Staff_User" Role="Staff_User" Multiplicity="*" />
         </Association>
-        <EntityType Name="User">
+        <EntityType Name="User" Abstract="true">
           <Key>
             <PropertyRef Name="UserID" />
           </Key>

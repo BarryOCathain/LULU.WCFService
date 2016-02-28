@@ -2,7 +2,7 @@
 -- --------------------------------------------------
 -- Entity Designer DDL Script for SQL Server 2005, 2008, 2012 and Azure
 -- --------------------------------------------------
--- Date Created: 02/27/2016 23:37:39
+-- Date Created: 02/28/2016 00:06:36
 -- Generated from EDMX file: C:\Users\DynamicDuo\Source\Repos\LULU_WCF_Service\LULU_WCF_Service\LULU_Model.edmx
 -- --------------------------------------------------
 
