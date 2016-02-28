@@ -1,31 +1,32 @@
-﻿using System;
+﻿using LULU_WCF_Service.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.Serialization;
 
-namespace LULU_WCF_Service.ViewModels
+namespace LULU_WCF_Service
 {
-    class StudentViewModel
+    public class LULU_Service : IStudentService
     {
-        private LULU_ModelContainer context;
+        LULU_ModelContainer context;
 
-        public StudentViewModel(LULU_ModelContainer context)
+        public LULU_Service()
         {
-            this.context = context;
+            context = new LULU_ModelContainer();
         }
 
+        #region IStudentService Implementation
         public void CreateStudent(string studentNumber, string firstName, string surname, string email, string password)
         {
             context.Users.Add(new Student
-                {
-                    StudentNumber = studentNumber,
-                    FirstName = firstName,
-                    Surname = surname,
-                    Email = email,
-                    Password = password
-                });
+            {
+                StudentNumber = studentNumber,
+                FirstName = firstName,
+                Surname = surname,
+                Email = email,
+                Password = password
+            });
             context.SaveChanges();
         }
 
@@ -72,6 +73,7 @@ namespace LULU_WCF_Service.ViewModels
         public Student SearchStudentByStudentNumber(string studentNumber)
         {
             return context.Users.OfType<Student>().Where(s => s.StudentNumber == studentNumber).FirstOrDefault();
-        }
+        } 
+        #endregion
     }
 }
