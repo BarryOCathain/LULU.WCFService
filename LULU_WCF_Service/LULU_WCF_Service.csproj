@@ -73,7 +73,7 @@
     <Compile Include="GPS_Login.cs">
       <DependentUpon>LULU_Model.tt</DependentUpon>
     </Compile>
-    <Compile Include="IService1.cs" />
+    <Compile Include="Interfaces\IStudentService.cs" />
     <Compile Include="Lecturer.cs">
       <DependentUpon>LULU_Model.tt</DependentUpon>
     </Compile>
@@ -96,7 +96,7 @@
       <DependentUpon>LULU_Model.edmx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Service1.cs" />
+    <Compile Include="LULU_Service.cs" />
     <Compile Include="Staff_Login.cs">
       <DependentUpon>LULU_Model.tt</DependentUpon>
     </Compile>
@@ -109,6 +109,7 @@
     <Compile Include="User.cs">
       <DependentUpon>LULU_Model.tt</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\StudentViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -137,6 +138,7 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <VSToolsPath Condition="'$(VSToolsPath)' == '' and '$(VisualStudioVersion)' != '' and '$(VisualStudioVersion)' != '11.0'">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
