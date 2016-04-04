@@ -67,90 +67,24 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AtttendedClass.cs">
-      <DependentUpon>LULU_Model.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Campus.cs">
-      <DependentUpon>LULU_Model.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Class.cs">
-      <DependentUpon>LULU_Model.tt</DependentUpon>
-    </Compile>
-    <Compile Include="ClassRoom.cs">
-      <DependentUpon>LULU_Model.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Course.cs">
-      <DependentUpon>LULU_Model.tt</DependentUpon>
-    </Compile>
-    <Compile Include="GPS_Login.cs">
-      <DependentUpon>LULU_Model.tt</DependentUpon>
-    </Compile>
     <Compile Include="Interfaces\IStudentService.cs" />
-    <Compile Include="Lecturer.cs">
-      <DependentUpon>LULU_Model.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Login.cs">
-      <DependentUpon>LULU_Model.tt</DependentUpon>
-    </Compile>
-    <Compile Include="LULU_Model.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>LULU_Model.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="LULU_Model.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>LULU_Model.tt</DependentUpon>
-    </Compile>
-    <Compile Include="LULU_Model.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>LULU_Model.edmx</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="LULU_Service.cs" />
-    <Compile Include="Staff_Login.cs">
-      <DependentUpon>LULU_Model.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Staff_User.cs">
-      <DependentUpon>LULU_Model.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Student.cs">
-      <DependentUpon>LULU_Model.tt</DependentUpon>
-    </Compile>
-    <Compile Include="User.cs">
-      <DependentUpon>LULU_Model.tt</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <EntityDeploy Include="LULU_Model.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>LULU_Model.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <None Include="LULU_Model.edmx.diagram">
-      <DependentUpon>LULU_Model.edmx</DependentUpon>
-    </None>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="LULU_Model.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>LULU_Model.Context.cs</LastGenOutput>
-      <DependentUpon>LULU_Model.edmx</DependentUpon>
-    </Content>
-    <Content Include="LULU_Model.edmx.sql" />
-    <Content Include="LULU_Model.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>LULU_Model.cs</LastGenOutput>
-      <DependentUpon>LULU_Model.edmx</DependentUpon>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\LULU_Model_DLL\LULU_Model_DLL\LULU_Model_DLL\LULU_Model_DLL.csproj">
+      <Project>{c13d7566-6926-4c00-bcd3-d157e70fcdc2}</Project>
+      <Name>LULU_Model_DLL</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

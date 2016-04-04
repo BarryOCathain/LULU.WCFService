@@ -16,12 +16,12 @@ namespace LULU_WCF_Service.Interfaces
         void UpdateStudent(string studentNumber, string firstName, string surname, string email, string password);
 
         [OperationContract]
-        List<Student> SearchStudentsByFirstName(string firstName);
+        List<LULU_Model_DLL.Student> SearchStudentsByFirstName(string firstName);
 
         [OperationContract]
-        List<Student> SearchStudentsBySurname(string surname);
+        List<LULU_Model_DLL.Student> SearchStudentsBySurname(string surname);
 
         [OperationContract]
-        Student SearchStudentByStudentNumber(string studentNumber);
+        LULU_Model_DLL.Student SearchStudentByStudentNumber(string studentNumber);
     }
 }
