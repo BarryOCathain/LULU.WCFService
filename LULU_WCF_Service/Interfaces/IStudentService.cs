@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ServiceModel;
+using LULU_Model_DLL;
 
 namespace LULU_WCF_Service.Interfaces
 {
@@ -16,12 +17,12 @@ namespace LULU_WCF_Service.Interfaces
         void UpdateStudent(string studentNumber, string firstName, string surname, string email, string password);
 
         [OperationContract]
-        List<LULU_Model_DLL.Student> SearchStudentsByFirstName(string firstName);
+        string SearchStudentsByFirstName(string firstName);
 
         [OperationContract]
-        List<LULU_Model_DLL.Student> SearchStudentsBySurname(string surname);
+        string SearchStudentsBySurname(string surname);
 
         [OperationContract]
-        LULU_Model_DLL.Student SearchStudentByStudentNumber(string studentNumber);
+        string SearchStudentByStudentNumber(string studentNumber);
     }
 }

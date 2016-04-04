@@ -3,17 +3,23 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using LULU_Model_DLL;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using System.Text;
+using System.IO;
+using LULU_WCF_Service.Common;
 
 namespace LULU_WCF_Service
 {
-    public class LULU_Service : IStudentService
+    public class LULU_Service : IStudentService, ICampus
     {
         LULU_ModelContainer context;
 
         public LULU_Service()
         {
             context = new LULU_ModelContainer();
+            context.Configuration.ProxyCreationEnabled = false;
         }
 
         #region IStudentService Implementation
@@ -34,9 +40,10 @@ namespace LULU_WCF_Service
         {
             try
             {
-                Student s = SearchStudentByStudentNumber(studentNumber);
+                Student st = context.Users.OfType<Student>()
+                .Where(s => s.StudentNumber == studentNumber).FirstOrDefault();
 
-                context.Users.Remove(s);
+                context.Users.Remove(st);
 
                 context.SaveChanges();
             }
@@ -50,30 +57,94 @@ namespace LULU_WCF_Service
 
         public void UpdateStudent(string studentNumber, string firstName, string surname, string email, string password)
         {
-            Student s = SearchStudentByStudentNumber(studentNumber);
+            Student st = context.Users.OfType<Student>()
+                .Where(s => s.StudentNumber == studentNumber).FirstOrDefault();
 
-            s.FirstName = firstName;
-            s.Surname = surname;
-            s.Email = email;
-            s.Password = password;
+            st.FirstName = firstName;
+            st.Surname = surname;
+            st.Email = email;
+            st.Password = password;
 
             context.SaveChanges();
         }
 
-        public List<Student> SearchStudentsByFirstName(string firstName)
+        public string SearchStudentsByFirstName(string firstName)
         {
-            return context.Users.OfType<Student>().Where(s => s.FirstName.Equals(firstName)).ToList();
+            return Serializers<Student>.SerializeList(context.Users.OfType<Student>().Where(s => s.FirstName.Equals(firstName)).ToList());
         }
 
-        public List<Student> SearchStudentsBySurname(string surname)
+        public string SearchStudentsBySurname(string surname)
         {
-            return context.Users.OfType<Student>().Where(s => s.Surname.Equals(surname)).ToList();
+            return Serializers<Student>.SerializeList(context.Users.OfType<Student>().Where(s => s.Surname.Equals(surname)).ToList());
         }
 
-        public Student SearchStudentByStudentNumber(string studentNumber)
+        public string SearchStudentByStudentNumber(string studentNumber)
         {
-            return context.Users.OfType<Student>().Where(s => s.StudentNumber == studentNumber).FirstOrDefault();
-        } 
+            return Serializers<Student>.Serialize(context.Users.OfType<Student>()
+                .Where(s => s.StudentNumber == studentNumber).FirstOrDefault());
+        }
+        #endregion
+
+        #region ICampus Implementation
+        public void AddCampus(string name)
+        {
+            try
+            {
+                Campus cs = context.Campus.Where(c => c.Name.Equals(name)).FirstOrDefault();
+
+                if (cs == null)
+                {
+                    context.Campus.Add(new Campus
+                    {
+                        Name = name
+                    });
+
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.InnerException);
+            }
+        }
+
+        public bool DeleteCampus(string name)
+        {
+            try
+            {
+                Campus cs = context.Campus.Where(c => c.Name.Equals(name)).FirstOrDefault();
+
+                if (cs != null)
+                {
+                    context.Campus.Remove(cs);
+                    context.SaveChanges();
+                }
+                else
+                    return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.InnerException);
+                return false;
+            }
+            return true;
+        }
+
+        public string GetAllCampuses()
+        {
+            return Serializers<Campus>.SerializeList(context.Campus.ToList());
+        }
+
+        public string GetCampusByClassroom(string classroom)
+        {
+            ClassRoom cl = Serializers<ClassRoom>.Deserialize(classroom);
+
+            if (cl != null)
+            {
+                return Serializers<Campus>.Serialize(context.Campus.Where(c => c.ClassRooms.Contains(cl)).FirstOrDefault()); 
+            }
+            return null;
+        }
         #endregion
     }
 }
