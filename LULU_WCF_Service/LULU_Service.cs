@@ -1,26 +1,33 @@
 ﻿using LULU_WCF_Service.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using LULU_Model_DLL;
-using System.Runtime.Serialization;
-using System.Xml.Serialization;
-using System.Text;
-using System.IO;
 using LULU_WCF_Service.Common;
 
 namespace LULU_WCF_Service
 {
-    public class LULU_Service : IStudent, ICampus, IClass
+    public class LULU_Service : IStudent, ICampus, IClass, IClassRoom, ICourse
     {
-        LULU_ModelContainer context;
+        #region Private Members
+        private LULU_ModelContainer context; 
+        #endregion
 
+        #region Constructor
         public LULU_Service()
         {
             context = new LULU_ModelContainer();
+
+            // Stops the cration of proxy objects at runtime which causes issues with serialization
             context.Configuration.ProxyCreationEnabled = false;
-        }
+
+            // Stops Lazy Loading whic will load all related entities the first time that an object is accessed.
+            // This could be a problem where there are thousands of related entiies.
+            // For example, if we queried for a specific ClassRoom, then with Lazy Loading, the first time that we access
+            // this ClassRoom, all related Classes would be loaded into memory.
+            context.Configuration.LazyLoadingEnabled = false;
+        } 
+        #endregion
 
         #region IStudentService Implementation
         public void CreateStudent(string studentNumber, string firstName, string surname, string email, string password)
@@ -236,7 +243,11 @@ namespace LULU_WCF_Service
         {
             try
             {
-                return Serializers<Class>.SerializeList(context.Classes.ToList());
+                return Serializers<Class>.SerializeList(context.Classes
+                    .Include("Course")
+                    .Include("ClassRoom")
+                    .Include("ClassRoom.Campu")
+                    .ToList());
             }
             catch (Exception ex)
             {
@@ -314,6 +325,161 @@ namespace LULU_WCF_Service
             {
                 return ex.InnerException.ToString();
             }
+        }
+        #endregion
+
+        #region IClassRoom Implementation
+        public bool AddClassRoom(string classroomString)
+        {
+            ClassRoom cl = Serializers<ClassRoom>.Deserialize(classroomString);
+
+            if (cl != null)
+            {
+                try
+                {
+                    if (!context.ClassRooms1.Any(c => c.Name.Equals(cl.Name) && c.Campu.Equals(cl.Campu)))
+                    {
+                        context.ClassRooms1.Add(cl);
+                        context.SaveChanges();
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+            }
+            return false;
+        }
+
+        public bool DeleteClassRoom(string classroomString)
+        {
+            ClassRoom cl = Serializers<ClassRoom>.Deserialize(classroomString);
+
+            if (cl != null)
+            {
+                try
+                {
+                    if (context.ClassRooms1.Any(c => c.Equals(cl)))
+                    {
+                        context.ClassRooms1.Remove(cl);
+                        context.SaveChanges();
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+            }
+            return false;
+        }
+
+        public bool UpdateClassRoom(string classRoomString)
+        {
+            ClassRoom cl = Serializers<ClassRoom>.Deserialize(classRoomString);
+
+            if (cl != null)
+            {
+                if (context.ClassRooms1.Any(c => c.Equals(cl)))
+                {
+                    try
+                    {
+                        ClassRoom classroomToUpdate = context.ClassRooms1.Where(c => c.Equals(cl)).FirstOrDefault();
+
+                        classroomToUpdate.Name = cl.Name;
+                        classroomToUpdate.Longitude = cl.Longitude;
+                        classroomToUpdate.Latitude = cl.Latitude;
+                        classroomToUpdate.Campu = cl.Campu;
+
+                        context.SaveChanges();
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public string GetAllClassRooms()
+        {
+            return Serializers<ClassRoom>.SerializeList(context.ClassRooms1.ToList());
+        }
+
+        public string GetAllClassRoomsByCampus(string campusString)
+        {
+            Campus ca = Serializers<Campus>.Deserialize(campusString);
+
+            if (ca != null)
+            {
+                if (context.Campus.Any(c => c.Equals(ca)))
+                {
+                    Serializers<ClassRoom>.SerializeList(context.ClassRooms1.Where(cl => cl.Campu.Equals(ca)).ToList()); 
+                }
+            }
+            return null;
+        }
+        #endregion
+
+        #region ICourse Implementation
+        public bool AddCourse(string courseString)
+        {
+            Course course = Serializers<Course>.Deserialize(courseString);
+
+            if (course != null)
+            {
+                if (!context.Courses1.Any(c => c.CourseCode.Equals(course.CourseCode) && c.Name.Equals(course.Name)))
+                {
+                    context.Courses1.Add(course);
+                    context.SaveChanges();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool DeleteCourse(string courseString)
+        {
+            Course course = Serializers<Course>.Deserialize(courseString);
+
+            if (course != null)
+            {
+                if(context.Courses1.Any(c => c.Equals(course)))
+                {
+                    context.Courses1.Remove(course);
+                    context.SaveChanges();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool UpdateCourse(string courseString)
+        {
+            Course course = Serializers<Course>.Deserialize(courseString);
+
+            if (course != null)
+            {
+                if (context.Courses1.Any(c => c.Equals(course)))
+                {
+                    Course courseToUpdate = context.Courses1.Where(c => c.Equals(course)).FirstOrDefault();
+
+                    courseToUpdate.CourseCode = course.CourseCode;
+                    courseToUpdate.Name = course.Name;
+
+                    context.SaveChanges();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public string GetAllCourses()
+        {
+            return Serializers<Course>.SerializeList(context.Courses1.ToList());
         }
         #endregion
     }

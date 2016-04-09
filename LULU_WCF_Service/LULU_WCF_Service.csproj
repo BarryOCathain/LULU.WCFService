@@ -71,6 +71,8 @@
     <Compile Include="Common\Utf8StringWriter.cs" />
     <Compile Include="Interfaces\ICampus.cs" />
     <Compile Include="Interfaces\IClass.cs" />
+    <Compile Include="Interfaces\IClassRoom.cs" />
+    <Compile Include="Interfaces\ICourse.cs" />
     <Compile Include="Interfaces\IStudent.cs" />
     <Compile Include="LULU_Service.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
