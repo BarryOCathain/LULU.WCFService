@@ -5,7 +5,7 @@ using LULU_Model_DLL;
 namespace LULU_WCF_Service.Interfaces
 {
     [ServiceContract]
-    interface IStudentService
+    interface IStudent
     {
         [OperationContract]
         void CreateStudent(string studentNumber, string firstName, string surname, string email, string password);

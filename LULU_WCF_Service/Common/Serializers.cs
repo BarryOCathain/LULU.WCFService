@@ -2,25 +2,35 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace LULU_WCF_Service.Common
 {
     public static class Serializers<T>
     {
+        public static object EntityUtilities { get; private set; }
+
         public static string Serialize(T obj)
         {
             try
             {
-                var serializer = new XmlSerializer(typeof(T));
-                var sb = new StringBuilder();
-                var writer = new StringWriter(sb);
+                DataContractSerializer serializer = new DataContractSerializer(typeof(T));
 
-                serializer.Serialize(writer, obj);
+                using (MemoryStream writer = new MemoryStream())
+                {
+                    using (StreamReader reader = new StreamReader(writer))
+                    {
+                        serializer.WriteObject(writer, obj);
 
-                return sb.ToString();
+                        writer.Seek(0, SeekOrigin.Begin);
+
+                        return reader.ReadToEnd();
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -33,16 +43,14 @@ namespace LULU_WCF_Service.Common
         {
             try
             {
-                var serializer = new XmlSerializer(typeof(T));
                 var sb = new StringBuilder();
-                var writer = new StringWriter(sb);
 
                 foreach (T obj in objs)
                 {
-                    serializer.Serialize(writer, obj);
+                    sb.Append(Serialize(obj));
                 }
 
-                return sb.ToString();
+                return sb.ToString().Trim();
             }
             catch (Exception ex)
             {
@@ -53,16 +61,44 @@ namespace LULU_WCF_Service.Common
 
         public static T Deserialize(string objString)
         {
+            T result = default(T);
+
             try
             {
-                var xmlSerializer = new XmlSerializer(typeof(T));
-                return (T)xmlSerializer.Deserialize(new StringReader(objString));
+                DataContractSerializer serializer = new DataContractSerializer(typeof(T));
+
+                using (MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(objString)))
+                {
+                    stream.Position = 0;
+
+                    return (T)serializer.ReadObject(stream);
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Failed to deserialize xml string to data contract object:", ex);
+                Console.WriteLine(ex.ToString());
             }
+            return result;
         }
 
+        public static List<T> DeserializeList(string objects)
+        {
+            try
+            {
+                DataContractSerializer serializer = new DataContractSerializer(typeof(List<T>));
+
+                using (MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(objects)))
+                {
+                    stream.Position = 0;
+
+                    return (List<T>)serializer.ReadObject(stream);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.InnerException);
+            }
+            return null;
+        }
     }
 }
