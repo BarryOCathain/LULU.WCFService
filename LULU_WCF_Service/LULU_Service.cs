@@ -4,10 +4,11 @@ using System.Diagnostics;
 using System.Linq;
 using LULU_Model_DLL;
 using LULU_WCF_Service.Common;
+using System.Reflection;
 
 namespace LULU_WCF_Service
 {
-    public class LULU_Service : IStudent, ICampus, IClass, IClassRoom, ICourse
+    public class LULU_Service : IStudent, ICampus, IClass, IClassRoom, ICourse, IUser
     {
         #region Private Members
         private LULU_ModelContainer context; 
@@ -21,7 +22,7 @@ namespace LULU_WCF_Service
             // Stops the cration of proxy objects at runtime which causes issues with serialization
             context.Configuration.ProxyCreationEnabled = false;
 
-            // Stops Lazy Loading whic will load all related entities the first time that an object is accessed.
+            // Stops Lazy Loading which will load all related entities the first time that an object is accessed.
             // This could be a problem where there are thousands of related entiies.
             // For example, if we queried for a specific ClassRoom, then with Lazy Loading, the first time that we access
             // this ClassRoom, all related Classes would be loaded into memory.
@@ -29,7 +30,7 @@ namespace LULU_WCF_Service
         } 
         #endregion
 
-        #region IStudentService Implementation
+        #region IStudent Implementation
         public void CreateStudent(string studentNumber, string firstName, string surname, string email, string password)
         {
             context.Users.Add(new Student
@@ -337,7 +338,7 @@ namespace LULU_WCF_Service
             {
                 try
                 {
-                    if (!context.ClassRooms1.Any(c => c.Name.Equals(cl.Name) && c.Campu.Equals(cl.Campu)))
+                    if (!context.ClassRooms1.Any(c => c.Name.Equals(cl.Name) && c.Campus.Equals(cl.Campus)))
                     {
                         context.ClassRooms1.Add(cl);
                         context.SaveChanges();
@@ -390,7 +391,7 @@ namespace LULU_WCF_Service
                         classroomToUpdate.Name = cl.Name;
                         classroomToUpdate.Longitude = cl.Longitude;
                         classroomToUpdate.Latitude = cl.Latitude;
-                        classroomToUpdate.Campu = cl.Campu;
+                        classroomToUpdate.Campus = cl.Campus;
 
                         context.SaveChanges();
                         return true;
@@ -417,7 +418,7 @@ namespace LULU_WCF_Service
             {
                 if (context.Campus.Any(c => c.Equals(ca)))
                 {
-                    Serializers<ClassRoom>.SerializeList(context.ClassRooms1.Where(cl => cl.Campu.Equals(ca)).ToList()); 
+                    Serializers<ClassRoom>.SerializeList(context.ClassRooms1.Where(cl => cl.Campus.Equals(ca)).ToList()); 
                 }
             }
             return null;
@@ -480,6 +481,124 @@ namespace LULU_WCF_Service
         public string GetAllCourses()
         {
             return Serializers<Course>.SerializeList(context.Courses1.ToList());
+        }
+        #endregion
+
+        #region IUser Implementation
+        public bool AddUser(string userString)
+        {
+            User user = Serializers<User>.Deserialize(userString);
+
+            if (user != null)
+            {
+                try
+                {
+                    if (!context.Users.Any(u => u.FirstName.Equals(user.FirstName) && u.Surname.Equals(user.Surname)
+                    && u.Email.Equals(user.Email)))
+                    {
+                        context.Users.Add(user);
+                        context.SaveChanges();
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+            }
+            return false;
+        }
+
+        public bool DeleteUser(string userString)
+        {
+            User user = Serializers<User>.Deserialize(userString);
+
+            if (user != null)
+            {
+                try
+                {
+                    if (context.Users.Any(u => u.Equals(user)))
+                    {
+                        context.Users.Remove(user);
+                        context.SaveChanges();
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+            }
+            return false;
+        }
+
+        public bool UpdateUser(string userString)
+        {
+            User user = Serializers<User>.Deserialize(userString);
+
+            if (user != null)
+            {
+                try
+                {
+                    Student student = user as Student;
+
+                    if (student != null)
+                    {
+                        Student studentToUpdate = context.Users.OfType<Student>().Where(s => s.Equals(student)).FirstOrDefault();
+
+                        studentToUpdate.FirstName = student.FirstName;
+                        studentToUpdate.Surname = student.Surname;
+                        studentToUpdate.Email = student.Email;
+                        studentToUpdate.Password = student.Password;
+                    }
+                    else
+                    {
+                        Staff_User staff = user as Staff_User;
+
+                        Staff_User staffUserToUpdate = context.Users.OfType<Staff_User>()
+                            .Where(st => st.Equals(staff)).FirstOrDefault();
+
+                        staffUserToUpdate.FirstName = staff.FirstName;
+                        staffUserToUpdate.Surname = staff.Surname;
+                        staffUserToUpdate.Email = staff.Email;
+                        staffUserToUpdate.Password = staff.Password;
+                        staffUserToUpdate.IsSysAdmin = staff.IsSysAdmin;
+                    }
+                    context.SaveChanges();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+            }
+            return false;
+        }
+
+        public string GetAllUsers()
+        {
+            return Serializers<User>.SerializeList(context.Users.ToList());
+        }
+
+        public string GetAllUsersOfType(string typeString)
+        {
+            Assembly model = typeof(User).Assembly;
+            Type userType = model.GetType(typeString);
+
+            if (userType == typeof(Student))
+                return true.ToString();
+
+
+            if (userType != null)
+            {
+                if (userType == typeof(Student))
+                    return Serializers<Student>.SerializeList(context.Users.OfType<Student>().ToList());
+                else if (userType == typeof(Staff_User))
+                    return Serializers<Staff_User>.SerializeList(context.Users.OfType<Staff_User>().ToList());
+                else if (userType == typeof(Lecturer))
+                    Serializers<Lecturer>.SerializeList(context.Users.OfType<Lecturer>().ToList());
+            }
+            return null;
         }
         #endregion
     }

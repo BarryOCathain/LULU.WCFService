@@ -74,6 +74,7 @@
     <Compile Include="Interfaces\IClassRoom.cs" />
     <Compile Include="Interfaces\ICourse.cs" />
     <Compile Include="Interfaces\IStudent.cs" />
+    <Compile Include="Interfaces\IUser.cs" />
     <Compile Include="LULU_Service.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

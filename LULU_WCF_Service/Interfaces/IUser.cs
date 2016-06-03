@@ -8,21 +8,21 @@ using System.Threading.Tasks;
 namespace LULU_WCF_Service.Interfaces
 {
     [ServiceContract]
-    interface IClassRoom
+    interface IUser
     {
         [OperationContract]
-        bool AddClassRoom(string classroomString);
+        bool AddUser(string userString);
 
         [OperationContract]
-        bool DeleteClassRoom(string classroomString);
+        bool DeleteUser(string userString);
 
         [OperationContract]
-        bool UpdateClassRoom(string classRoomString);
+        bool UpdateUser(string userString);
 
         [OperationContract]
-        string GetAllClassRooms();
+        string GetAllUsers();
 
         [OperationContract]
-        string GetAllClassRoomsByCampus(string campusString);
+        string GetAllUsersOfType(string typeString);
     }
 }
