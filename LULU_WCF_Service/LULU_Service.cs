@@ -31,17 +31,27 @@ namespace LULU_WCF_Service
         #endregion
 
         #region IStudent Implementation
-        public void CreateStudent(string studentNumber, string firstName, string surname, string email, string password)
+        public bool CreateStudent(string studentNumber, string firstName, string surname, string email, string password)
         {
-            context.Users.Add(new Student
+            try
             {
-                StudentNumber = studentNumber,
-                FirstName = firstName,
-                Surname = surname,
-                Email = email,
-                Password = password
-            });
-            context.SaveChanges();
+                context.Users.Add(new Student
+                    {
+                        StudentNumber = studentNumber,
+                        FirstName = firstName,
+                        Surname = surname,
+                        Email = email,
+                        Password = password
+                    });
+                context.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            return false;
         }
 
         public bool DeleteStudent(string studentNumber)
