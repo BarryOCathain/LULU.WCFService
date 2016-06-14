@@ -11,10 +11,10 @@ namespace LULU_WCF_Service.Interfaces
     interface IClassRoom
     {
         [OperationContract]
-        bool AddClassRoom(string classroomString);
+        bool AddClassRoom(string name, decimal longitude, decimal latitude, int campusID);
 
         [OperationContract]
-        bool DeleteClassRoom(string classroomString);
+        bool DeleteClassRoom(int classroomID);
 
         [OperationContract]
         bool UpdateClassRoom(string classRoomString);
@@ -23,6 +23,6 @@ namespace LULU_WCF_Service.Interfaces
         string GetAllClassRooms();
 
         [OperationContract]
-        string GetAllClassRoomsByCampus(string campusString);
+        string GetAllClassRoomsByCampus(int campusID);
     }
 }

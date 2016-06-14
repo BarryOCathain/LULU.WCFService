@@ -11,12 +11,12 @@ namespace LULU_WCF_Service.Interfaces
     interface ICampus
     {
         [OperationContract]
-        void AddCampus(string name);
+        bool AddCampus(string name);
         [OperationContract]
-        bool DeleteCampus(string name);
+        bool DeleteCampus(int campusID);
         [OperationContract]
         string GetAllCampuses();
         [OperationContract]
-        string GetCampusByClassroom(string classroom);
+        string GetCampusByClassroom(int classroomID);
     }
 }

@@ -11,16 +11,19 @@ namespace LULU_WCF_Service.Interfaces
     interface IUser
     {
         [OperationContract]
-        bool AddUser(string userString);
+        bool AddLecturer(string title, string staffNumber, string firstName, string surname, string email, string password, bool isSysAdmin);
 
         [OperationContract]
-        bool DeleteUser(string userString);
+        bool AddStaffUser(string staffNumber, string firstName, string surname, string email, string password, bool isSysAdmin);
+
+        [OperationContract]
+        bool AddStudent(string studentNumber, string firstName, string surname, string email, string password);
+
+        [OperationContract]
+        bool DeleteUser(int userID);
 
         [OperationContract]
         bool UpdateUser(string userString);
-
-        [OperationContract]
-        string GetAllUsers();
 
         [OperationContract]
         string GetAllUsersOfType(string typeString);

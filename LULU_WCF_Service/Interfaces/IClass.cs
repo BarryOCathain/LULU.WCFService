@@ -14,7 +14,7 @@ namespace LULU_WCF_Service.Interfaces
         bool AddClass(string newClass);
 
         [OperationContract]
-        bool DeleteClass(string classToDelete);
+        bool DeleteClass(int classID);
 
         [OperationContract]
         bool UpdateClass(string updatedClass);
@@ -23,13 +23,13 @@ namespace LULU_WCF_Service.Interfaces
         string GetAllClasses();
 
         [OperationContract]
-        string GetAllClassesByCourse(string course);
+        string GetAllClassesByCourse(int courseID);
 
         [OperationContract]
         string GetAllClassesByDate(DateTime classDate);
 
         [OperationContract]
-        string GetAllClassesByClassroom(string classroom);
+        string GetAllClassesByClassroom(int classroomID);
 
         [OperationContract]
         string GetClassesByName(string name);

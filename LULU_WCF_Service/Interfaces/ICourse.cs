@@ -11,10 +11,10 @@ namespace LULU_WCF_Service.Interfaces
     interface ICourse
     {
         [OperationContract]
-        bool AddCourse(string courseString);
+        bool AddCourse(string courseCode, string name);
 
         [OperationContract]
-        bool DeleteCourse(string courseString);
+        bool DeleteCourse(int courseID);
 
         [OperationContract]
         bool UpdateCourse(string courseString);

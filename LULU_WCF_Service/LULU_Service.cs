@@ -5,12 +5,16 @@ using System.Linq;
 using LULU_Model_DLL;
 using LULU_WCF_Service.Common;
 using System.Reflection;
+using log4net;
 
 namespace LULU_WCF_Service
 {
     public class LULU_Service : IStudent, ICampus, IClass, IClassRoom, ICourse, IUser
     {
         #region Private Members
+        // log4net object creation. Uses System.Reflection to get the executing method and add details to logs.
+        // Configuration in App.Config.
+        private static readonly ILog logs = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private LULU_ModelContainer context; 
         #endregion
 
@@ -48,8 +52,7 @@ namespace LULU_WCF_Service
             }
             catch (Exception ex)
             {
-
-                throw;
+                logs.Error("An error occurred creating the new student object.", ex);
             }
             return false;
         }
@@ -64,47 +67,81 @@ namespace LULU_WCF_Service
                 context.Users.Remove(st);
 
                 context.SaveChanges();
+                return true;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("An error occurred deleting the student: " + ex.ToString());
-                return false;
+                logs.Error("An error occurred deleting the student with Student Number: " + studentNumber, ex);
             }
-            return true;
+            return false;
         }
 
-        public void UpdateStudent(string studentNumber, string firstName, string surname, string email, string password)
+        public bool UpdateStudent(string studentNumber, string firstName, string surname, string email, string password)
         {
-            Student st = context.Users.OfType<Student>()
-                .Where(s => s.StudentNumber == studentNumber).FirstOrDefault();
+            try
+            {
+                Student st = context.Users.OfType<Student>()
+                        .Where(s => s.StudentNumber == studentNumber).FirstOrDefault();
 
-            st.FirstName = firstName;
-            st.Surname = surname;
-            st.Email = email;
-            st.Password = password;
+                st.FirstName = firstName;
+                st.Surname = surname;
+                st.Email = email;
+                st.Password = password;
 
-            context.SaveChanges();
+                context.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred updating the student with Student Number: " + studentNumber, ex);
+            }
+            return false;
         }
 
         public string SearchStudentsByFirstName(string firstName)
         {
-            return Serializers<Student>.SerializeList(context.Users.OfType<Student>().Where(s => s.FirstName.Equals(firstName)).ToList());
+            try
+            {
+                return Serializers<Student>.SerializeList(context.Users.OfType<Student>().Where(s => s.FirstName.Equals(firstName)).ToList());
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred retrieving students by first name", ex);
+            }
+            return null;
         }
 
         public string SearchStudentsBySurname(string surname)
         {
-            return Serializers<Student>.SerializeList(context.Users.OfType<Student>().Where(s => s.Surname.Equals(surname)).ToList());
+            try
+            {
+                return Serializers<Student>.SerializeList(context.Users.OfType<Student>().Where(s => s.Surname.Equals(surname)).ToList());
+            }
+            catch (Exception ex)
+            {
+
+                logs.Error("An error occurred retrieving students by surname", ex);
+            }
+            return null;
         }
 
         public string SearchStudentByStudentNumber(string studentNumber)
         {
-            return Serializers<Student>.Serialize(context.Users.OfType<Student>()
-                .Where(s => s.StudentNumber == studentNumber).FirstOrDefault());
+            try
+            {
+                return Serializers<Student>.Serialize(context.Users.OfType<Student>()
+                        .Where(s => s.StudentNumber == studentNumber).FirstOrDefault());
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred retrieving a student with Student Number: " + studentNumber, ex);
+            }
+            return null;
         }
         #endregion
 
         #region ICampus Implementation
-        public void AddCampus(string name)
+        public bool AddCampus(string name)
         {
             try
             {
@@ -119,47 +156,57 @@ namespace LULU_WCF_Service
 
                     context.SaveChanges();
                 }
+                return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.InnerException);
+                logs.Error("An error occurred Adding the new Campus", ex);
             }
+            return false;
         }
 
-        public bool DeleteCampus(string name)
+        public bool DeleteCampus(int campusID)
         {
             try
             {
-                Campus cs = context.Campus.Where(c => c.Name.Equals(name)).FirstOrDefault();
+                Campus cs = context.Campus.Where(c => c.CampusID == campusID).FirstOrDefault();
 
                 if (cs != null)
                 {
                     context.Campus.Remove(cs);
                     context.SaveChanges();
+                    return true;
                 }
-                else
-                    return false;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.InnerException);
-                return false;
+                logs.Error("An error occurred deleting the Campus with CampusID: " + campusID, ex);
             }
-            return true;
+            return false;
         }
 
         public string GetAllCampuses()
         {
-            return Serializers<Campus>.SerializeList(context.Campus.ToList());
+            try
+            {
+                return Serializers<Campus>.SerializeList(context.Campus.ToList());
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred retrieving all Campuses", ex);
+            }
+            return null;
         }
 
-        public string GetCampusByClassroom(string classroom)
+        public string GetCampusByClassroom(int classroomID)
         {
-            ClassRoom cl = Serializers<ClassRoom>.Deserialize(classroom);
-
-            if (cl != null)
+            try
             {
-                return Serializers<Campus>.Serialize(context.Campus.Where(c => c.ClassRooms.Contains(cl)).FirstOrDefault()); 
+                return Serializers<Campus>.Serialize(context.ClassRooms1.Where(c => c.ClassRoomID == classroomID).FirstOrDefault().Campus); 
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred retrieving the Campus with ClassroomID: " + classroomID, ex);
             }
             return null;
         }
@@ -168,9 +215,6 @@ namespace LULU_WCF_Service
         #region IClass Implementation
         public bool AddClass(string newClass)
         {
-            if (string.IsNullOrEmpty(newClass.Trim()))
-                throw new ArgumentException("The Class to be added has not been specified");
-
             try
             {
                 Class c = null;
@@ -182,43 +226,37 @@ namespace LULU_WCF_Service
                     context.Classes.Add(c);
                     context.SaveChanges();
                 }
+                return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+                logs.Error("An error occurred adding the new class", ex);
             }
-            return true;
+            return false;
         }
 
-        public bool DeleteClass(string classToDelete)
+        public bool DeleteClass(int classID)
         {
-            if (string.IsNullOrEmpty(classToDelete.Trim()))
-                throw new ArgumentException("The Class to be deleted has not been specified");
-
             try
             {
-                Class c = null;
+                Class cl = context.Classes.Where(c => c.ClassID == classID).FirstOrDefault();
 
-                c = Serializers<Class>.Deserialize(classToDelete);
-
-                if (c != null)
+                if (cl != null)
                 {
-                    context.Classes.Remove(c);
+                    context.Classes.Remove(cl);
                     context.SaveChanges();
+                    return false;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+                logs.Error("An error occurred deleting the Class with ClassID: " + classID, ex);
             }
-            return true;
+            return false;
         }
 
         public bool UpdateClass(string updatedClass)
         {
-            if (string.IsNullOrEmpty(updatedClass.Trim()))
-                throw new ArgumentException("The Class to be updated has not been specified");
-
             try
             {
                 Class c = null;
@@ -241,13 +279,14 @@ namespace LULU_WCF_Service
 
                         context.SaveChanges();
                     }
+                    return true;
                 }
             }
             catch (Exception ex)
             {
-                return false;
+                logs.Error("An error occurred updating the Class", ex);
             }
-            return true;
+            return false;
         }
 
         public string GetAllClasses()
@@ -257,130 +296,110 @@ namespace LULU_WCF_Service
                 return Serializers<Class>.SerializeList(context.Classes
                     .Include("Course")
                     .Include("ClassRoom")
-                    .Include("ClassRoom.Campu")
+                    .Include("ClassRoom.Campus")
                     .ToList());
             }
             catch (Exception ex)
             {
-                return ex.InnerException.ToString();
+                logs.Error("An error occurred retrieving all Classes", ex);
             }
+            return null;
         }
 
-        public string GetAllClassesByCourse(string course)
+        public string GetAllClassesByCourse(int courseID)
         {
-            if (string.IsNullOrEmpty(course.Trim()))
-                throw new ArgumentException("Course for which Classes are to be found, has not been specified");
-
             try
             {
-                Course _course = Serializers<Course>.Deserialize(course);
-
-                if (_course != null)
-                {
-                    return Serializers<Class>.SerializeList(context.Classes.Where(c => c.Course.Equals(_course)).ToList());
-                }
+                return Serializers<Class>.SerializeList(context.Classes.Where(c => c.Course.CourseID == courseID).ToList());
             }
             catch (Exception ex)
             {
-                return ex.InnerException.ToString();
+                logs.Error("An error occurred retrieving all Classes for CourseID: " + courseID, ex);
             }
             return null;
         }
 
         public string GetAllClassesByDate(DateTime classDate)
         {
-            if (classDate == null)
-                throw new ArgumentException("The Date of the Classes to be found has not been specified");
-
             try
             {
                 return Serializers<Class>.SerializeList(context.Classes.Where(c => c.ClassDate == classDate).ToList());
             }
             catch (Exception ex)
             {
-                return ex.InnerException.ToString();
+                logs.Error("An error occurred retrieving Classes on the date: " + classDate, ex);
             }
+            return null;
         }
 
-        public string GetAllClassesByClassroom(string classroom)
+        public string GetAllClassesByClassroom(int classroomID)
         {
-            if (string.IsNullOrEmpty(classroom.Trim()))
-                throw new ArgumentException("Classroom for which Classes are to be found, has not been specified");
-
             try
             {
-                ClassRoom cl = Serializers<ClassRoom>.Deserialize(classroom);
-
-                if (cl != null)
-                {
-                    return Serializers<Class>.SerializeList(context.Classes.Where(c => c.ClassRoom.Equals(cl)).ToList());
-                }
+                return Serializers<Class>.SerializeList(context.Classes.Where(c => c.ClassRoom.ClassRoomID == classroomID).ToList());
             }
             catch (Exception ex)
             {
-                return ex.InnerException.ToString();
+                logs.Error("An error occurred retrieving Classes for ClassroomID: " + classroomID, ex);
             }
-            return "The Classroom for which Classes are to be found, does not exist";
+            return null;
         }
 
         public string GetClassesByName(string name)
         {
-            if (string.IsNullOrEmpty(name.Trim()))
-                throw new ArgumentException("THe Name for which CLasses are to be found, has not been specified");
-
             try
             {
                 return Serializers<Class>.SerializeList(context.Classes.Where(c => c.Name.Contains(name)).ToList());
             }
             catch (Exception ex)
             {
-                return ex.InnerException.ToString();
+                logs.Error("An error occurred retrieving Classes with the Name: " + name, ex);
             }
+            return null;
         }
         #endregion
 
         #region IClassRoom Implementation
-        public bool AddClassRoom(string classroomString)
+        public bool AddClassRoom(string name, decimal longitude, decimal latitude, int campusID)
         {
-            ClassRoom cl = Serializers<ClassRoom>.Deserialize(classroomString);
-
-            if (cl != null)
+            try
             {
-                try
+                Campus campus = context.Campus.Where(c => c.CampusID == campusID).FirstOrDefault();
+
+                if (campus != null)
                 {
-                    if (!context.ClassRooms1.Any(c => c.Name.Equals(cl.Name) && c.Campus.Equals(cl.Campus)))
-                    {
-                        context.ClassRooms1.Add(cl);
-                        context.SaveChanges();
-                        return true;
-                    }
+                    context.ClassRooms1.Add(new ClassRoom()
+                            {
+                                Name = name,
+                                Longitude = longitude,
+                                Latitude = latitude,
+                                Campus = campus
+                            }); 
                 }
-                catch (Exception ex)
-                {
-                    throw;
-                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred adding the new Classroom.", ex);
             }
             return false;
         }
 
-        public bool DeleteClassRoom(string classroomString)
+        public bool DeleteClassRoom(int classroomID)
         {
-            ClassRoom cl = Serializers<ClassRoom>.Deserialize(classroomString);
+            ClassRoom cl = context.ClassRooms1.Where(c => c.ClassRoomID == classroomID).FirstOrDefault();
 
             if (cl != null)
             {
                 try
                 {
-                    if (context.ClassRooms1.Any(c => c.Equals(cl)))
-                    {
-                        context.ClassRooms1.Remove(cl);
-                        context.SaveChanges();
-                        return true;
-                    }
+                    context.ClassRooms1.Remove(cl);
+                    context.SaveChanges();
+                    return true;
                 }
                 catch (Exception ex)
                 {
-                    throw;
+                    logs.Error("An error occurred deleting the Classroom with ClassroomID: " + classroomID, ex);
                 }
             }
             return false;
@@ -408,7 +427,7 @@ namespace LULU_WCF_Service
                     }
                     catch (Exception ex)
                     {
-                        throw;
+                        logs.Error("An error occurred updating the Classroom with ClassroomID: " + cl.ClassRoomID, ex);
                     }
                 }
             }
@@ -417,53 +436,67 @@ namespace LULU_WCF_Service
 
         public string GetAllClassRooms()
         {
-            return Serializers<ClassRoom>.SerializeList(context.ClassRooms1.ToList());
+            try
+            {
+                return Serializers<ClassRoom>.SerializeList(context.ClassRooms1.ToList());
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred retrieving all Classrooms.", ex);
+            }
+            return null;
         }
 
-        public string GetAllClassRoomsByCampus(string campusString)
+        public string GetAllClassRoomsByCampus(int campusID)
         {
-            Campus ca = Serializers<Campus>.Deserialize(campusString);
-
-            if (ca != null)
+            try
             {
-                if (context.Campus.Any(c => c.Equals(ca)))
-                {
-                    Serializers<ClassRoom>.SerializeList(context.ClassRooms1.Where(cl => cl.Campus.Equals(ca)).ToList()); 
-                }
+                Serializers<ClassRoom>.SerializeList(context.ClassRooms1.Where(cl => cl.Campus.CampusID == campusID).ToList());
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred retrieving the Classrooms for CampusID: " + campusID, ex);
             }
             return null;
         }
         #endregion
 
         #region ICourse Implementation
-        public bool AddCourse(string courseString)
+        public bool AddCourse(string courseCode, string name)
         {
-            Course course = Serializers<Course>.Deserialize(courseString);
-
-            if (course != null)
+            try
             {
-                if (!context.Courses1.Any(c => c.CourseCode.Equals(course.CourseCode) && c.Name.Equals(course.Name)))
-                {
-                    context.Courses1.Add(course);
-                    context.SaveChanges();
-                    return true;
-                }
+                context.Courses1.Add(new Course()
+                    {
+                        CourseCode = courseCode,
+                        Name = name
+                    });
+                context.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred adding the new Course.", ex);
             }
             return false;
         }
 
-        public bool DeleteCourse(string courseString)
+        public bool DeleteCourse(int courseID)
         {
-            Course course = Serializers<Course>.Deserialize(courseString);
+            Course course = context.Courses1.Where(c => c.CourseID == courseID).FirstOrDefault();
 
-            if (course != null)
+            try
             {
-                if(context.Courses1.Any(c => c.Equals(course)))
+                if (course != null)
                 {
                     context.Courses1.Remove(course);
                     context.SaveChanges();
                     return true;
                 }
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred deleting the Course with CourseID: " + courseID, ex);
             }
             return false;
         }
@@ -472,71 +505,128 @@ namespace LULU_WCF_Service
         {
             Course course = Serializers<Course>.Deserialize(courseString);
 
-            if (course != null)
+            try
             {
-                if (context.Courses1.Any(c => c.Equals(course)))
+                if (course != null)
                 {
-                    Course courseToUpdate = context.Courses1.Where(c => c.Equals(course)).FirstOrDefault();
+                    if (context.Courses1.Any(c => c.Equals(course)))
+                    {
+                        Course courseToUpdate = context.Courses1.Where(c => c.Equals(course)).FirstOrDefault();
 
-                    courseToUpdate.CourseCode = course.CourseCode;
-                    courseToUpdate.Name = course.Name;
+                        courseToUpdate.CourseCode = course.CourseCode;
+                        courseToUpdate.Name = course.Name;
 
-                    context.SaveChanges();
-                    return true;
+                        context.SaveChanges();
+                        return true;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred updating the Course with CourseID: " + course.CourseID, ex);
             }
             return false;
         }
 
         public string GetAllCourses()
         {
-            return Serializers<Course>.SerializeList(context.Courses1.ToList());
+            try
+            {
+                return Serializers<Course>.SerializeList(context.Courses1.ToList());
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred retrieving all Courses.", ex);
+            }
+            return null;
         }
         #endregion
 
         #region IUser Implementation
-        public bool AddUser(string userString)
+        public bool AddLecturer(string title, string staffNumber, string firstName, string surname, string email, string password, bool isSysAdmin)
         {
-            User user = Serializers<User>.Deserialize(userString);
-
-            if (user != null)
+            try
             {
-                try
-                {
-                    if (!context.Users.Any(u => u.FirstName.Equals(user.FirstName) && u.Surname.Equals(user.Surname)
-                    && u.Email.Equals(user.Email)))
+                context.Users.Add(new Lecturer()
                     {
-                        context.Users.Add(user);
-                        context.SaveChanges();
-                        return true;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    throw;
-                }
+                        Title = title,
+                        StaffNumber = staffNumber,
+                        FirstName = firstName,
+                        Surname = surname,
+                        Email = email,
+                        Password = password,
+                        IsSysAdmin = isSysAdmin
+                    });
+                context.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred saving the new Lecturer.", ex);
             }
             return false;
         }
 
-        public bool DeleteUser(string userString)
+        public bool AddStaffUser(string staffNumber, string firstName, string surname, string email, string password, bool isSysAdmin)
         {
-            User user = Serializers<User>.Deserialize(userString);
+            try
+            {
+                context.Users.Add(new Staff_User()
+                {
+                    StaffNumber = staffNumber,
+                    FirstName = firstName,
+                    Surname = surname,
+                    Email = email,
+                    Password = password,
+                    IsSysAdmin = isSysAdmin
+                });
+                context.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred saving the new Staff User.", ex);
+            }
+            return false;
+        }
+
+        public bool AddStudent(string studentNumber, string firstName, string surname, string email, string password)
+        {
+            try
+            {
+                context.Users.Add(new Student()
+                {
+                    StudentNumber = studentNumber,
+                    FirstName = firstName,
+                    Surname = surname,
+                    Email = email,
+                    Password = password
+                });
+                context.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred saving the new Student.", ex);
+            }
+            return false;
+        }
+
+        public bool DeleteUser(int userID)
+        {
+            User user = context.Users.Where(u => u.UserID == userID).FirstOrDefault();
 
             if (user != null)
             {
                 try
                 {
-                    if (context.Users.Any(u => u.Equals(user)))
-                    {
-                        context.Users.Remove(user);
-                        context.SaveChanges();
-                        return true;
-                    }
+                    context.Users.Remove(user);
+                    context.SaveChanges();
+                    return true;
                 }
                 catch (Exception ex)
                 {
-                    throw;
+                    logs.Error("An error occurred deleting the User with UserID: " + userID, ex);
                 }
             }
             return false;
@@ -550,63 +640,62 @@ namespace LULU_WCF_Service
             {
                 try
                 {
-                    Student student = user as Student;
+                    User userToUpdate = context.Users.Where(u => u.UserID == user.UserID).FirstOrDefault();
 
-                    if (student != null)
+                    if (userToUpdate != null)
                     {
-                        Student studentToUpdate = context.Users.OfType<Student>().Where(s => s.Equals(student)).FirstOrDefault();
+                        userToUpdate.FirstName = user.FirstName;
+                        userToUpdate.Surname = user.Surname;
+                        userToUpdate.Email = user.Email;
+                        userToUpdate.Password = user.Password;
 
-                        studentToUpdate.FirstName = student.FirstName;
-                        studentToUpdate.Surname = student.Surname;
-                        studentToUpdate.Email = student.Email;
-                        studentToUpdate.Password = student.Password;
-                    }
-                    else
-                    {
-                        Staff_User staff = user as Staff_User;
+                        if (user is Student)
+                            ((Student)userToUpdate).StudentNumber = ((Student)user).StudentNumber;
 
-                        Staff_User staffUserToUpdate = context.Users.OfType<Staff_User>()
-                            .Where(st => st.Equals(staff)).FirstOrDefault();
+                        if (user is Staff_User)
+                        {
+                            ((Staff_User)userToUpdate).StaffNumber = ((Staff_User)user).StaffNumber;
+                            ((Staff_User)userToUpdate).IsSysAdmin = ((Staff_User)user).IsSysAdmin;
+                        }
 
-                        staffUserToUpdate.FirstName = staff.FirstName;
-                        staffUserToUpdate.Surname = staff.Surname;
-                        staffUserToUpdate.Email = staff.Email;
-                        staffUserToUpdate.Password = staff.Password;
-                        staffUserToUpdate.IsSysAdmin = staff.IsSysAdmin;
+                        if (user is Lecturer)
+                        {
+                            ((Lecturer)userToUpdate).StaffNumber = ((Lecturer)user).StaffNumber;
+                            ((Lecturer)userToUpdate).IsSysAdmin = ((Lecturer)user).IsSysAdmin;
+                            ((Lecturer)userToUpdate).Title = ((Lecturer)user).Title;
+                        }
                     }
                     context.SaveChanges();
                     return true;
                 }
                 catch (Exception ex)
                 {
-                    throw;
+                    logs.Error("An error occurred updating the User with UserID: " + user.UserID, ex);
                 }
             }
             return false;
         }
 
-        public string GetAllUsers()
-        {
-            return Serializers<User>.SerializeList(context.Users.ToList());
-        }
-
         public string GetAllUsersOfType(string typeString)
         {
-            Assembly model = typeof(User).Assembly;
-            Type userType = model.GetType(typeString);
-
-            if (userType == typeof(Student))
-                return true.ToString();
-
-
-            if (userType != null)
+            try
             {
-                if (userType == typeof(Student))
-                    return Serializers<Student>.SerializeList(context.Users.OfType<Student>().ToList());
-                else if (userType == typeof(Staff_User))
-                    return Serializers<Staff_User>.SerializeList(context.Users.OfType<Staff_User>().ToList());
-                else if (userType == typeof(Lecturer))
-                    Serializers<Lecturer>.SerializeList(context.Users.OfType<Lecturer>().ToList());
+                Assembly model = typeof(User).Assembly;
+                Type userType = model.GetType(typeString);
+
+                if (userType != null)
+                {
+                    if (userType == typeof(Student))
+                        return Serializers<Student>.SerializeList(context.Users.OfType<Student>().ToList());
+                    else if (userType == typeof(Staff_User))
+                        return Serializers<Staff_User>.SerializeList(context.Users.OfType<Staff_User>().ToList());
+                    else if (userType == typeof(Lecturer))
+                        Serializers<Lecturer>.SerializeList(context.Users.OfType<Lecturer>().ToList());
+                }
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred retrieving the Users of type " + typeString, ex);
             }
             return null;
         }
