@@ -1,0 +1,1 @@
+<%@ ServiceHost Service="LULU_WCF_Service.LULU_Service" %>
