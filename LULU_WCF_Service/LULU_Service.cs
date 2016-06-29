@@ -2,7 +2,7 @@
 using System;
 using System.Linq;
 using LULU.Model;
-using LULU_WCF_Service.Common;
+using LULU.Model.Common;
 using System.Reflection;
 using log4net;
 

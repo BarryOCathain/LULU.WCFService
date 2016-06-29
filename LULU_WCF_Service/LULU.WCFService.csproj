@@ -71,8 +71,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\Serializers.cs" />
-    <Compile Include="Common\Utf8StringWriter.cs" />
     <Compile Include="Interfaces\ICampus.cs" />
     <Compile Include="Interfaces\IClass.cs" />
     <Compile Include="Interfaces\IClassRoom.cs" />
