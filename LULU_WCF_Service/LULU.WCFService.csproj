@@ -83,7 +83,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -93,10 +95,13 @@
     <Folder Include="ViewModels\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\LULU_Model_DLL\LULU_Model_DLL\LULU_Model_DLL\LULU_Model_DLL.csproj">
+    <ProjectReference Include="..\..\LULU_Model_DLL\LULU_Model_DLL\LULU_Model_DLL\LULU.DAL.csproj">
       <Project>{c13d7566-6926-4c00-bcd3-d157e70fcdc2}</Project>
-      <Name>LULU_Model_DLL</Name>
+      <Name>LULU.DAL</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
