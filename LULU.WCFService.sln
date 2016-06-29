@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LULU.WCFService", "LULU_WCF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LULU.DAL", "..\LULU_Model_DLL\LULU_Model_DLL\LULU_Model_DLL\LULU.DAL.csproj", "{C13D7566-6926-4C00-BCD3-D157E70FCDC2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LULU.Model", "..\LULU.Model\LULU.Model\LULU.Model\LULU.Model.csproj", "{681F0DAA-2108-4C60-BDE8-E997CB2EB545}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{C13D7566-6926-4C00-BCD3-D157E70FCDC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C13D7566-6926-4C00-BCD3-D157E70FCDC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C13D7566-6926-4C00-BCD3-D157E70FCDC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{681F0DAA-2108-4C60-BDE8-E997CB2EB545}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{681F0DAA-2108-4C60-BDE8-E997CB2EB545}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{681F0DAA-2108-4C60-BDE8-E997CB2EB545}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{681F0DAA-2108-4C60-BDE8-E997CB2EB545}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

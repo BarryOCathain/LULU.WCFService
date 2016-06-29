@@ -1,8 +1,7 @@
 ﻿using LULU_WCF_Service.Interfaces;
 using System;
-using System.Diagnostics;
 using System.Linq;
-using LULU_Model_DLL;
+using LULU.Model;
 using LULU_WCF_Service.Common;
 using System.Reflection;
 using log4net;
