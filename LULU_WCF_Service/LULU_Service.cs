@@ -5,6 +5,7 @@ using LULU.Model;
 using LULU.Model.Common;
 using System.Reflection;
 using log4net;
+using System.Collections.Generic;
 
 namespace LULU_WCF_Service
 {
@@ -136,6 +137,22 @@ namespace LULU_WCF_Service
                 logs.Error("An error occurred retrieving a student with Student Number: " + studentNumber, ex);
             }
             return null;
+        }
+
+        public bool LoginStudent(string studentNumber, string password)
+        {
+            try
+            {
+                var student = context.Users.OfType<Student>()
+                        .Where(s => s.StudentNumber.Equals(studentNumber) && s.Password.Equals(password))
+                        .FirstOrDefault();
+                return student != null;
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred logging in the Student with StudentNumber " + studentNumber, ex);
+            }
+            return false;
         }
         #endregion
 
@@ -353,6 +370,49 @@ namespace LULU_WCF_Service
             catch (Exception ex)
             {
                 logs.Error("An error occurred retrieving Classes with the Name: " + name, ex);
+            }
+            return null;
+        }
+
+        public string GetClassesByStudentNumberAndDateRange(string studentNumber, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                Student student = context.Users.OfType<Student>().Where(s => s.StudentNumber.Equals(studentNumber)).FirstOrDefault();
+                if (student != null)
+                {
+                    return Serializers<Class>.SerializeList(context.Classes.Where(c => c.Course.Students.Contains(student) && c.ClassDate >= startDate
+                    && c.ClassDate <= endDate).ToList()); 
+                }
+            }
+            catch (Exception ex)
+            {
+                logs.Error(string.Format("An error occurred retrieving the attended classes for Student {0}, between {1} and {2}", studentNumber,
+                    startDate.ToShortDateString(), endDate.ToShortDateString()), ex);
+            }
+            return null;
+        }
+
+        public string GetAttendedClassesByStudentNumberAndDateRange(string studentNumber, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                List<AtttendedClass> attended = context.AtttendedClasses.Where(ac => ac.Student.StudentNumber.Equals(studentNumber) &&
+                ac.Class.ClassDate >= startDate && ac.Class.ClassDate <= endDate).ToList();
+
+                List<Class> classes = new List<Class>();
+
+                foreach (var item in attended)
+                {
+                    classes.Add(item.Class);
+                }
+
+                return Serializers<Class>.SerializeList(classes);
+            }
+            catch (Exception ex)
+            {
+                logs.Error(string.Format("An error occurred retrieving the attended classes for Student {0}, between {1} and {2}", studentNumber,
+                    startDate.ToShortDateString(), endDate.ToShortDateString()), ex);
             }
             return null;
         }
