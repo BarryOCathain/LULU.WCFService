@@ -39,5 +39,8 @@ namespace LULU_WCF_Service.Interfaces
 
         [OperationContract]
         string GetAttendedClassesByStudentNumberAndDateRange(string studentNumber, DateTime startDate, DateTime endDate);
+
+        [OperationContract]
+        string GetMissedClassesByStudentNumberAndDateRange(string studentNumber, DateTime startDate, DateTime endDate);
     }
 }
