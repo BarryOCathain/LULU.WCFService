@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LULU_WCF_Service", "LULU_WCF_Service\LULU_WCF_Service.csproj", "{AD1990B5-1520-4F0C-818D-3C498C991FFC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LULU.WCFService", "LULU_WCF_Service\LULU.WCFService.csproj", "{AD1990B5-1520-4F0C-818D-3C498C991FFC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LULU_Model_DLL", "..\LULU_Model_DLL\LULU_Model_DLL\LULU_Model_DLL\LULU_Model_DLL.csproj", "{C13D7566-6926-4C00-BCD3-D157E70FCDC2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LULU.DAL", "..\LULU_Model_DLL\LULU_Model_DLL\LULU_Model_DLL\LULU.DAL.csproj", "{C13D7566-6926-4C00-BCD3-D157E70FCDC2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LULU.Model", "..\LULU.Model\LULU.Model\LULU.Model\LULU.Model.csproj", "{681F0DAA-2108-4C60-BDE8-E997CB2EB545}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{C13D7566-6926-4C00-BCD3-D157E70FCDC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C13D7566-6926-4C00-BCD3-D157E70FCDC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C13D7566-6926-4C00-BCD3-D157E70FCDC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{681F0DAA-2108-4C60-BDE8-E997CB2EB545}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{681F0DAA-2108-4C60-BDE8-E997CB2EB545}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{681F0DAA-2108-4C60-BDE8-E997CB2EB545}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{681F0DAA-2108-4C60-BDE8-E997CB2EB545}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

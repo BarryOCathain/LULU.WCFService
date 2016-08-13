@@ -71,8 +71,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\Serializers.cs" />
-    <Compile Include="Common\Utf8StringWriter.cs" />
     <Compile Include="Interfaces\ICampus.cs" />
     <Compile Include="Interfaces\IClass.cs" />
     <Compile Include="Interfaces\IClassRoom.cs" />
@@ -83,7 +81,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -93,9 +93,13 @@
     <Folder Include="ViewModels\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\LULU_Model_DLL\LULU_Model_DLL\LULU_Model_DLL\LULU_Model_DLL.csproj">
+    <ProjectReference Include="..\..\LULU.Model\LULU.Model\LULU.Model\LULU.Model.csproj">
+      <Project>{681F0DAA-2108-4C60-BDE8-E997CB2EB545}</Project>
+      <Name>LULU.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\LULU_Model_DLL\LULU_Model_DLL\LULU_Model_DLL\LULU.DAL.csproj">
       <Project>{c13d7566-6926-4c00-bcd3-d157e70fcdc2}</Project>
-      <Name>LULU_Model_DLL</Name>
+      <Name>LULU.DAL</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

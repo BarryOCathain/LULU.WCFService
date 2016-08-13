@@ -25,5 +25,11 @@ namespace LULU_WCF_Service.Interfaces
 
         [OperationContract]
         string SearchStudentByStudentNumber(string studentNumber);
+
+        [OperationContract]
+        bool LoginStudent(string studentNumber, string password);
+
+        [OperationContract]
+        bool StudentAttendedClass(string studentNumber, int classID, string loginString);
     }
 }

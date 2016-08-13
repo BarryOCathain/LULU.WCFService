@@ -1,11 +1,13 @@
 ﻿using LULU_WCF_Service.Interfaces;
 using System;
-using System.Diagnostics;
 using System.Linq;
-using LULU_Model_DLL;
-using LULU_WCF_Service.Common;
+using LULU.Model;
+using LULU.Model.Common;
 using System.Reflection;
 using log4net;
+using System.Collections.Generic;
+
+[assembly: log4net.Config.XmlConfigurator(Watch = true)]
 
 namespace LULU_WCF_Service
 {
@@ -137,6 +139,55 @@ namespace LULU_WCF_Service
                 logs.Error("An error occurred retrieving a student with Student Number: " + studentNumber, ex);
             }
             return null;
+        }
+
+        public bool LoginStudent(string studentNumber, string password)
+        {
+            try
+            {
+                var student = context.Users.OfType<Student>()
+                        .Where(s => s.StudentNumber.Equals(studentNumber) && s.Password.Equals(password))
+                        .FirstOrDefault();
+                return student != null;
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred logging in the Student with StudentNumber " + studentNumber, ex);
+            }
+            return false;
+        }
+
+        public bool StudentAttendedClass(string studentNumber, int classID, string loginString)
+        {
+            try
+            {
+                Student student = context.Users.OfType<Student>().Where(s => s.StudentNumber.Equals(studentNumber)).FirstOrDefault();
+                Class _class = context.Classes.Where(c => c.ClassID == classID).FirstOrDefault();
+
+                Login login = Serializers<GPS_Login>.Deserialize(loginString);
+
+                if (login == null)
+                    login = Serializers<Staff_Login>.Deserialize(loginString);
+
+                if (student != null && _class != null && login != null)
+                {
+                    context.AtttendedClasses.Add(new AtttendedClass()
+                    {
+                        Class = _class,
+                        Student = student,
+                        GPS_Login = login is GPS_Login ? (GPS_Login)login : null,
+                        Staff_Login = login is Staff_Login ? (Staff_Login)login : null
+                    });
+
+                    context.SaveChanges();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                logs.Error(string.Format("An error occurred adding Student {0} to class {1}", studentNumber, classID), ex);
+            }
+            return false;
         }
         #endregion
 
@@ -354,6 +405,98 @@ namespace LULU_WCF_Service
             catch (Exception ex)
             {
                 logs.Error("An error occurred retrieving Classes with the Name: " + name, ex);
+            }
+            return null;
+        }
+
+        public string GetClassesByStudentNumberAndDateRange(string studentNumber, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                Student student = context.Users.OfType<Student>().Where(s => s.StudentNumber.Equals(studentNumber)).FirstOrDefault();
+                if (student != null)
+                {
+                    return Serializers<Class>.SerializeList(context.Classes.Where(c => c.Course.Students.Contains(student) && c.ClassDate >= startDate
+                    && c.ClassDate <= endDate).ToList()); 
+                }
+            }
+            catch (Exception ex)
+            {
+                logs.Error(string.Format("An error occurred retrieving the attended classes for Student {0}, between {1} and {2}", studentNumber,
+                    startDate.ToShortDateString(), endDate.ToShortDateString()), ex);
+            }
+            return null;
+        }
+
+        public string GetAttendedClassesByStudentNumberAndDateRange(string studentNumber, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                List<AtttendedClass> attended = context.AtttendedClasses.Include("Class").Where(ac => ac.Student.StudentNumber.Equals(studentNumber) &&
+                ac.Class.ClassDate >= startDate && ac.Class.ClassDate <= endDate).ToList();
+
+                List<Class> classes = new List<Class>();
+
+                foreach (var item in attended)
+                {
+                    classes.Add(new Class()
+                    {
+                        ClassID = item.Class.ClassID,
+                        Name = item.Class.Name,
+                        ClassDate = item.Class.ClassDate,
+                        Compulsory = item.Class.Compulsory,
+                        StartTime = item.Class.StartTime,
+                        EndTime = item.Class.EndTime,
+                        Course = item.Class.Course,
+                        ClassRoom = item.Class.ClassRoom
+                    });
+                }
+
+                return Serializers<Class>.SerializeList(classes);
+            }
+            catch (Exception ex)
+            {
+                logs.Error(string.Format("An error occurred retrieving the attended classes for Student {0}, between {1} and {2}", studentNumber,
+                    startDate.ToShortDateString(), endDate.ToShortDateString()), ex);
+            }
+            return null;
+        }
+
+        public string GetMissedClassesByStudentNumberAndDateRange(string studentNumber, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                Student student = context.Users.OfType<Student>().Where(s => s.StudentNumber.Equals(studentNumber)).FirstOrDefault();
+
+                if (student != null)
+                {
+                    List<Class> studentClasses = new List<Class>();
+
+                    foreach (Course course in context.Courses1.Where(c => c.Students.Contains(student)).ToList())
+                    {
+                        studentClasses.AddRange(course.Classes);
+                    }
+
+                    List<Class> attendedClasses = new List<Class>();
+
+                    foreach (AtttendedClass attendedClass in context.AtttendedClasses.Where(a => a.Student.Equals(student)).ToList())
+                    {
+                        attendedClasses.Add(attendedClass.Class);
+                    }
+
+                    List<Class> missedClasses = new List<Class>();
+
+                    foreach (Class item in studentClasses)
+                    {
+                        if (!attendedClasses.Contains(item))
+                            missedClasses.Add(item);
+                    }
+                    return Serializers<Class>.SerializeList(missedClasses);
+                }
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred retrieving the missed classes for Student " + studentNumber, ex);
             }
             return null;
         }
