@@ -93,13 +93,13 @@
     <Folder Include="ViewModels\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\LULU.DAL\LULU_Model_DLL\LULU_Model_DLL\LULU.DAL.csproj">
+      <Project>{c13d7566-6926-4c00-bcd3-d157e70fcdc2}</Project>
+      <Name>LULU.DAL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\LULU.Model\LULU.Model\LULU.Model\LULU.Model.csproj">
       <Project>{681F0DAA-2108-4C60-BDE8-E997CB2EB545}</Project>
       <Name>LULU.Model</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\LULU_Model_DLL\LULU_Model_DLL\LULU_Model_DLL\LULU.DAL.csproj">
-      <Project>{c13d7566-6926-4c00-bcd3-d157e70fcdc2}</Project>
-      <Name>LULU.DAL</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
