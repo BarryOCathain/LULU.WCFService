@@ -24,5 +24,11 @@ namespace LULU_WCF_Service.Interfaces
 
         [OperationContract]
         string GetAllClassRoomsByCampus(int campusID);
+
+        [OperationContract]
+        string GetClassRoomByID(int classroomID);
+
+        [OperationContract]
+        string GetClassRoomByClassID(int classID);
     }
 }

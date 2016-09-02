@@ -21,5 +21,11 @@ namespace LULU_WCF_Service.Interfaces
 
         [OperationContract]
         string GetAllCourses();
+
+        [OperationContract]
+        string GetCourseByID(int courseID);
+
+        [OperationContract]
+        string GetCourseByCourseCode(string courseCode);
     }
 }

@@ -17,7 +17,7 @@ namespace LULU_WCF_Service
         // log4net object creation. Uses System.Reflection to get the executing method and add details to logs.
         // Configuration in App.Config.
         private static readonly ILog logs = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        private LULU_ModelContainer context; 
+        private LULU_ModelContainer context;
         #endregion
 
         #region Constructor
@@ -33,7 +33,7 @@ namespace LULU_WCF_Service
             // For example, if we queried for a specific ClassRoom, then with Lazy Loading, the first time that we access
             // this ClassRoom, all related Classes would be loaded into memory.
             context.Configuration.LazyLoadingEnabled = false;
-        } 
+        }
         #endregion
 
         #region IStudent Implementation
@@ -42,13 +42,13 @@ namespace LULU_WCF_Service
             try
             {
                 context.Users.Add(new Student
-                    {
-                        StudentNumber = studentNumber,
-                        FirstName = firstName,
-                        Surname = surname,
-                        Email = email,
-                        Password = password
-                    });
+                {
+                    StudentNumber = studentNumber,
+                    FirstName = firstName,
+                    Surname = surname,
+                    Email = email,
+                    Password = password
+                });
                 context.SaveChanges();
                 return true;
             }
@@ -253,7 +253,7 @@ namespace LULU_WCF_Service
         {
             try
             {
-                return Serializers<Campus>.Serialize(context.ClassRooms1.Where(c => c.ClassRoomID == classroomID).FirstOrDefault().Campus); 
+                return Serializers<Campus>.Serialize(context.ClassRooms1.Where(c => c.ClassRoomID == classroomID).FirstOrDefault().Campus);
             }
             catch (Exception ex)
             {
@@ -409,15 +409,31 @@ namespace LULU_WCF_Service
             return null;
         }
 
-        public string GetClassesByStudentNumberAndDateRange(string studentNumber, DateTime startDate, DateTime endDate)
+        public string GetClassesByStudentNumberAndDateRange(string studentNumber, DateTime startDate, DateTime endDate, bool includeAttendedClasees)
         {
             try
             {
                 Student student = context.Users.OfType<Student>().Where(s => s.StudentNumber.Equals(studentNumber)).FirstOrDefault();
                 if (student != null)
                 {
-                    return Serializers<Class>.SerializeList(context.Classes.Where(c => c.Course.Students.Contains(student) && c.ClassDate >= startDate
-                    && c.ClassDate <= endDate).ToList()); 
+                    var courses = context.Users.AsNoTracking().OfType<Student>().Select(s => s.Courses).FirstOrDefault();
+                    Course course = courses.First();
+
+                    var result = context.Classes.Include("AtttendedClasses").Where(c => c.Course.CourseID == course.CourseID && c.ClassDate >= startDate
+                        && c.ClassDate <= endDate).ToList();
+
+                    if (includeAttendedClasees)
+                        return Serializers<Class>.SerializeList(result);
+
+                    var results = new List<Class>();
+
+                    foreach (var _class in result)
+                    {
+                        if (!_class.AtttendedClasses.Any())
+                            results.Add(_class);
+                    }
+
+                    return Serializers<Class>.SerializeList(results);
                 }
             }
             catch (Exception ex)
@@ -432,27 +448,34 @@ namespace LULU_WCF_Service
         {
             try
             {
-                List<AtttendedClass> attended = context.AtttendedClasses.Include("Class").Where(ac => ac.Student.StudentNumber.Equals(studentNumber) &&
-                ac.Class.ClassDate >= startDate && ac.Class.ClassDate <= endDate).ToList();
-
-                List<Class> classes = new List<Class>();
-
-                foreach (var item in attended)
+                Student student = context.Users.OfType<Student>().Where(s => s.StudentNumber.Equals(studentNumber)).FirstOrDefault();
+                if (student != null)
                 {
-                    classes.Add(new Class()
-                    {
-                        ClassID = item.Class.ClassID,
-                        Name = item.Class.Name,
-                        ClassDate = item.Class.ClassDate,
-                        Compulsory = item.Class.Compulsory,
-                        StartTime = item.Class.StartTime,
-                        EndTime = item.Class.EndTime,
-                        Course = item.Class.Course,
-                        ClassRoom = item.Class.ClassRoom
-                    });
-                }
+                    var courses = context.Users.AsNoTracking().OfType<Student>().Select(s => s.Courses).FirstOrDefault();
+                    Course course = courses.First();
 
-                return Serializers<Class>.SerializeList(classes);
+                    var result = context.Classes.Include("AtttendedClasses").Where(c => c.Course.CourseID == course.CourseID && c.ClassDate >= startDate
+                        && c.ClassDate < endDate).ToList();
+
+                    var results = new List<Class>();
+
+                    foreach (var _class in result)
+                    {
+                        if (_class.AtttendedClasses.Any())
+                            results.Add(new Class()
+                            {
+                                ClassID = _class.ClassID,
+                                Name = _class.Name,
+                                ClassDate = _class.ClassDate,
+                                Compulsory = _class.Compulsory,
+                                StartTime = _class.StartTime,
+                                EndTime = _class.EndTime
+                            });
+
+                    }
+
+                    return Serializers<Class>.SerializeList(results);
+                }
             }
             catch (Exception ex)
             {
@@ -467,31 +490,32 @@ namespace LULU_WCF_Service
             try
             {
                 Student student = context.Users.OfType<Student>().Where(s => s.StudentNumber.Equals(studentNumber)).FirstOrDefault();
-
                 if (student != null)
                 {
-                    List<Class> studentClasses = new List<Class>();
+                    var courses = context.Users.AsNoTracking().OfType<Student>().Select(s => s.Courses).FirstOrDefault();
+                    Course course = courses.First();
 
-                    foreach (Course course in context.Courses1.Where(c => c.Students.Contains(student)).ToList())
+                    var result = context.Classes.Include("AtttendedClasses").Where(c => c.Course.CourseID == course.CourseID && c.ClassDate >= startDate
+                        && c.ClassDate < endDate).ToList();
+
+                    var results = new List<Class>();
+
+                    foreach (var _class in result)
                     {
-                        studentClasses.AddRange(course.Classes);
+                        if (_class.AtttendedClasses.Any())
+                            results.Add(new Class()
+                            {
+                                ClassID = _class.ClassID,
+                                Name = _class.Name,
+                                ClassDate = _class.ClassDate,
+                                Compulsory = _class.Compulsory,
+                                StartTime = _class.StartTime,
+                                EndTime = _class.EndTime
+                            });
+
                     }
 
-                    List<Class> attendedClasses = new List<Class>();
-
-                    foreach (AtttendedClass attendedClass in context.AtttendedClasses.Where(a => a.Student.Equals(student)).ToList())
-                    {
-                        attendedClasses.Add(attendedClass.Class);
-                    }
-
-                    List<Class> missedClasses = new List<Class>();
-
-                    foreach (Class item in studentClasses)
-                    {
-                        if (!attendedClasses.Contains(item))
-                            missedClasses.Add(item);
-                    }
-                    return Serializers<Class>.SerializeList(missedClasses);
+                    return Serializers<Class>.SerializeList(results);
                 }
             }
             catch (Exception ex)
@@ -512,12 +536,12 @@ namespace LULU_WCF_Service
                 if (campus != null)
                 {
                     context.ClassRooms1.Add(new ClassRoom()
-                            {
-                                Name = name,
-                                Longitude = longitude,
-                                Latitude = latitude,
-                                Campus = campus
-                            }); 
+                    {
+                        Name = name,
+                        Longitude = longitude,
+                        Latitude = latitude,
+                        Campus = campus
+                    });
                 }
                 return true;
             }
@@ -594,13 +618,31 @@ namespace LULU_WCF_Service
         {
             try
             {
-                Serializers<ClassRoom>.SerializeList(context.ClassRooms1.Where(cl => cl.Campus.CampusID == campusID).ToList());
+                return Serializers<ClassRoom>.SerializeList(context.ClassRooms1.Where(cl => cl.Campus.CampusID == campusID).ToList());
             }
             catch (Exception ex)
             {
                 logs.Error("An error occurred retrieving the Classrooms for CampusID: " + campusID, ex);
             }
             return null;
+        }
+
+        public string GetClassRoomByID(int classroomID)
+        {
+            try
+            {
+                return Serializers<ClassRoom>.Serialize(context.ClassRooms1.Where(c => c.ClassRoomID == classroomID).First());
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred retrieving the Classroom with ID: " + classroomID, ex);
+            }
+            return null;
+        }
+
+        public string GetClassRoomByClassID(int classID)
+        {
+            return Serializers<ClassRoom>.Serialize(context.Classes.Where(c => c.ClassID == classID).Select(cl => cl.ClassRoom).FirstOrDefault());
         }
         #endregion
 
@@ -610,10 +652,10 @@ namespace LULU_WCF_Service
             try
             {
                 context.Courses1.Add(new Course()
-                    {
-                        CourseCode = courseCode,
-                        Name = name
-                    });
+                {
+                    CourseCode = courseCode,
+                    Name = name
+                });
                 context.SaveChanges();
                 return true;
             }
@@ -683,6 +725,24 @@ namespace LULU_WCF_Service
             }
             return null;
         }
+
+        public string GetCourseByID(int courseID)
+        {
+            var course = context.Courses1.Where(c => c.CourseID == courseID).FirstOrDefault();
+
+            if (course != null)
+                return Serializers<Course>.Serialize(course);
+            return null;
+        }
+
+        public string GetCourseByCourseCode(string courseCode)
+        {
+            var course = context.Courses1.Where(c => c.CourseCode.Equals(courseCode)).FirstOrDefault();
+
+            if (course != null)
+                return Serializers<Course>.Serialize(course);
+            return null;
+        }
         #endregion
 
         #region IUser Implementation
@@ -691,15 +751,15 @@ namespace LULU_WCF_Service
             try
             {
                 context.Users.Add(new Lecturer()
-                    {
-                        Title = title,
-                        StaffNumber = staffNumber,
-                        FirstName = firstName,
-                        Surname = surname,
-                        Email = email,
-                        Password = password,
-                        IsSysAdmin = isSysAdmin
-                    });
+                {
+                    Title = title,
+                    StaffNumber = staffNumber,
+                    FirstName = firstName,
+                    Surname = surname,
+                    Email = email,
+                    Password = password,
+                    IsSysAdmin = isSysAdmin
+                });
                 context.SaveChanges();
                 return true;
             }
@@ -840,6 +900,15 @@ namespace LULU_WCF_Service
             {
                 logs.Error("An error occurred retrieving the Users of type " + typeString, ex);
             }
+            return null;
+        }
+
+        public string LoginStaffUser(string staffNumber, string password)
+        {
+            var user = context.Users.OfType<Staff_User>().Where(s => s.StaffNumber.Equals(staffNumber) && s.Password.Equals(password)).FirstOrDefault();
+
+            if (user != null)
+                return Serializers<Staff_User>.Serialize(user);
             return null;
         }
         #endregion

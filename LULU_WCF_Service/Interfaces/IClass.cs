@@ -35,7 +35,7 @@ namespace LULU_WCF_Service.Interfaces
         string GetClassesByName(string name);
 
         [OperationContract]
-        string GetClassesByStudentNumberAndDateRange(string studentNumber, DateTime startDate, DateTime endDate);
+        string GetClassesByStudentNumberAndDateRange(string studentNumber, DateTime startDate, DateTime endDate, bool includeAttendedClasses);
 
         [OperationContract]
         string GetAttendedClassesByStudentNumberAndDateRange(string studentNumber, DateTime startDate, DateTime endDate);

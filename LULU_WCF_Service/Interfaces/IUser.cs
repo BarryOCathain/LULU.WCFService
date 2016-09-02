@@ -27,5 +27,8 @@ namespace LULU_WCF_Service.Interfaces
 
         [OperationContract]
         string GetAllUsersOfType(string typeString);
+
+        [OperationContract]
+        string LoginStaffUser(string staffNumber, string password);
     }
 }
