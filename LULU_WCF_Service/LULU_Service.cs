@@ -100,6 +100,19 @@ namespace LULU_WCF_Service
             return false;
         }
 
+        public string GetAllStudents()
+        {
+            try
+            {
+                return Serializers<Student>.SerializeList(context.Users.OfType<Student>().ToList());
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred retrieving all students", ex);
+            }
+            return null;
+        }
+
         public string SearchStudentsByFirstName(string firstName)
         {
             try
@@ -694,9 +707,9 @@ namespace LULU_WCF_Service
             {
                 if (course != null)
                 {
-                    if (context.Courses1.Any(c => c.Equals(course)))
+                    if (context.Courses1.Any(c => c.CourseID == course.CourseID))
                     {
-                        Course courseToUpdate = context.Courses1.Where(c => c.Equals(course)).FirstOrDefault();
+                        Course courseToUpdate = context.Courses1.Where(c => c.CourseID == course.CourseID).FirstOrDefault();
 
                         courseToUpdate.CourseCode = course.CourseCode;
                         courseToUpdate.Name = course.Name;

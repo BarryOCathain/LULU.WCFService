@@ -18,6 +18,9 @@ namespace LULU_WCF_Service.Interfaces
         bool UpdateStudent(string studentNumber, string firstName, string surname, string email, string password);
 
         [OperationContract]
+        string GetAllStudents();
+
+        [OperationContract]
         string SearchStudentsByFirstName(string firstName);
 
         [OperationContract]
