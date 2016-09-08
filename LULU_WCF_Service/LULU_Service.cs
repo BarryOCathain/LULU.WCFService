@@ -113,6 +113,32 @@ namespace LULU_WCF_Service
             return null;
         }
 
+        public string GetStudentByUserID(int userID)
+        {
+            try
+            {
+                return Serializers<Student>.Serialize(context.Users.OfType<Student>().Where(s => s.UserID == userID).FirstOrDefault());
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred retrieving the student with the UserID: " + userID, ex);
+            }
+            return null;
+        }
+        
+        public string GetStudentByStudentNumber(string studentNumber)
+        {
+            try
+            {
+                return Serializers<Student>.Serialize(context.Users.OfType<Student>().Where(s => s.StudentNumber.Equals(studentNumber)).FirstOrDefault());
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred retrieving the student with Student Number: " + studentNumber, ex);
+            }
+            return null;
+        }
+
         public string SearchStudentsByFirstName(string firstName)
         {
             try
@@ -418,6 +444,19 @@ namespace LULU_WCF_Service
             catch (Exception ex)
             {
                 logs.Error("An error occurred retrieving Classes with the Name: " + name, ex);
+            }
+            return null;
+        }
+
+        public string GetClassByID(int classID)
+        {
+            try
+            {
+                return Serializers<Class>.Serialize(context.Classes.Where(c => c.ClassID == classID).FirstOrDefault());
+            }
+            catch (Exception ex)
+            {
+                logs.Error("An error occurred retrieving the Class with ClassID: " + classID, ex);
             }
             return null;
         }

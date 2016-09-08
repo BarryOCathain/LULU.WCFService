@@ -21,6 +21,12 @@ namespace LULU_WCF_Service.Interfaces
         string GetAllStudents();
 
         [OperationContract]
+        string GetStudentByUserID(int userID);
+
+        [OperationContract]
+        string GetStudentByStudentNumber(string studentNUmber);
+
+        [OperationContract]
         string SearchStudentsByFirstName(string firstName);
 
         [OperationContract]
